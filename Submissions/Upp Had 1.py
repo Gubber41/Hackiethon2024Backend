@@ -10,7 +10,7 @@ from Game.gameSettings import HP, LEFTBORDER, RIGHTBORDER, LEFTSTART, RIGHTSTART
 # SECONDARY CAN BE : Hadoken, Grenade, Boomerang, Bear Trap
 
 # TODO FOR PARTICIPANT: Set primary and secondary skill here
-PRIMARY_SKILL = DashAttackSkill
+PRIMARY_SKILL = UppercutSkill
 SECONDARY_SKILL = Hadoken
 
 #constants, for easier move return
@@ -50,7 +50,19 @@ class Script:
     # MAIN FUNCTION that returns a single move to the game manager
     def get_move(self, player, enemy, player_projectiles, enemy_projectiles):
         self.time += 1
+
+        if get_distance(player, enemy) == 1 and get_pos(enemy)[1] - get_pos(player)[1] < 2:
+            if not primary_on_cooldown(player):
+                return PRIMARY
+            return JUMP_BACKWARD
         
-        return NOMOVE
+        if not secondary_on_cooldown:
+            if get_distance(player, enemy) > 3:
+                return SECONDARY
+            return JUMP_BACKWARD
+
+        moves = [FORWARD, BACK]
+        return moves[self.time % len(moves)]
+
 
         

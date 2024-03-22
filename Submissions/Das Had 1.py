@@ -51,6 +51,19 @@ class Script:
     def get_move(self, player, enemy, player_projectiles, enemy_projectiles):
         self.time += 1
         
-        return NOMOVE
+        if get_distance(player, enemy) == 1:
+            return heavy_combo(player, enemy)
+        
+        if not primary_on_cooldown(player):
+            if get_distance(player, enemy) <= 5:
+                return PRIMARY
+            return FORWARD
+        
+        if not secondary_on_cooldown(player):
+            if get_distance(player, enemy) <= 7:
+                return SECONDARY
+            return FORWARD
+        
+        return BACK
 
         

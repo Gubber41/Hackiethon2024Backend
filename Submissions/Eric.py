@@ -51,6 +51,6 @@ class Script:
     def get_move(self, player, enemy, player_projectiles, enemy_projectiles):
         self.time += 1
         
-        return NOMOVE
+        return eric_func(player, enemy, PRIMARY, SECONDARY)
 
         

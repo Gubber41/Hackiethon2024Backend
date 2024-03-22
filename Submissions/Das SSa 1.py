@@ -11,7 +11,7 @@ from Game.gameSettings import HP, LEFTBORDER, RIGHTBORDER, LEFTSTART, RIGHTSTART
 
 # TODO FOR PARTICIPANT: Set primary and secondary skill here
 PRIMARY_SKILL = DashAttackSkill
-SECONDARY_SKILL = Hadoken
+SECONDARY_SKILL = SuperSaiyanSkill
 
 #constants, for easier move return
 #movements
@@ -50,7 +50,21 @@ class Script:
     # MAIN FUNCTION that returns a single move to the game manager
     def get_move(self, player, enemy, player_projectiles, enemy_projectiles):
         self.time += 1
+
+        if not secondary_on_cooldown(player):
+            if get_distance(player, enemy) < 3:
+                return BACK
+            return SECONDARY
         
-        return NOMOVE
+        
+        if not primary_on_cooldown(player):
+            if get_distance(player, enemy) < 6:
+                return PRIMARY
+            return FORWARD
+        
+        if get_distance(player, enemy) == 1:
+            return heavy_combo(player, enemy)
+        
+        return JUMP_BACKWARD
 
         
