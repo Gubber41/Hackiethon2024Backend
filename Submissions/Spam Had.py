@@ -50,20 +50,23 @@ class Script:
     # MAIN FUNCTION that returns a single move to the game manager
     def get_move(self, player, enemy, player_projectiles, enemy_projectiles):
         self.time += 1
-        
-        if get_distance(player, enemy) == 1:
-            return heavy_combo(player, enemy)
-        
-        if not primary_on_cooldown(player):
-            if get_distance(player, enemy) <= 5:
-                return PRIMARY
-            return FORWARD
+
+        # Only for player 1
+        if get_pos(player)[0] < 6:
+            if (get_pos(player)[0] - get_pos(enemy)[0]) > 0:
+                return BACK
+            elif (get_pos(player)[0] - get_pos(enemy)[0]) < 0:
+                return FORWARD
+            return NOMOVE
+        elif get_pos(player)[0] > 6:
+            if (get_pos(player)[0] - get_pos(enemy)[0]) > 0:
+                return FORWARD
+            elif (get_pos(player)[0] - get_pos(enemy)[0]) < 0:
+                return BACK
+            return NOMOVE
         
         if not secondary_on_cooldown(player):
-            if get_distance(player, enemy) <= 7:
-                return SECONDARY
-            return FORWARD
-        
-        return BACK
+            return SECONDARY
+        return NOMOVE
 
         

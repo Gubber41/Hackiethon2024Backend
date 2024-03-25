@@ -10,7 +10,7 @@ from Game.gameSettings import HP, LEFTBORDER, RIGHTBORDER, LEFTSTART, RIGHTSTART
 # SECONDARY CAN BE : Hadoken, Grenade, Boomerang, Bear Trap
 
 # TODO FOR PARTICIPANT: Set primary and secondary skill here
-PRIMARY_SKILL = DashAttackSkill
+PRIMARY_SKILL = Meditate
 SECONDARY_SKILL = Hadoken
 
 #constants, for easier move return
@@ -36,34 +36,56 @@ NOMOVE = "NoMove"
 moves = SECONDARY,
 moves_iter = iter(moves)
 
+def anydodgers(player, enemy, enemy_projectiles):
+    if get_secondary_skill(enemy) == "hadoken":
+        try:
+            if abs(get_proj_pos(enemy_projectiles[0])[0] - get_pos(player)[0]) <= 2:
+                return JUMP_FORWARD
+            
+        except IndexError:
+            return
+    if get_secondary_skill(enemy) == "grenade":
+        try:
+            if abs(get_proj_pos(enemy_projectiles[0])[0] - get_pos(player)[0]) <= 2:
+                return JUMP_FORWARD
+            
+        except IndexError:
+            return
+    return
+
+def vsDashAttack(time, player, enemy, enemy_projectiles):
+    if time%15 == 0:
+        return BACK
+    distance = abs(get_pos(player)[0] - get_pos(enemy)[0])
+    if anydodgers(player, enemy, enemy_projectiles) == JUMP_FORWARD:
+        return JUMP_FORWARD
+    if not primary_on_cooldown(player) and get_hp(player) <= 80:
+        return PRIMARY
+    if get_stun_duration(enemy) > 0 and distance == 1:
+        return heavy_combo(player, enemy)
+    if distance == 1:
+        return BLOCK
+    if not secondary_on_cooldown(player):
+        if get_distance(player, enemy) <= 7:
+            return SECONDARY
+        else: 
+            return FORWARD
+    return LIGHT
+
 # TODO FOR PARTICIPANT: WRITE YOUR WINNING BOT
 class Script:
     def __init__(self):
         self.primary = PRIMARY_SKILL
         self.secondary = SECONDARY_SKILL
+        self.time = 0
         
     # DO NOT TOUCH
     def init_player_skills(self):
         return self.primary, self.secondary
     
-    time = 0
     # MAIN FUNCTION that returns a single move to the game manager
     def get_move(self, player, enemy, player_projectiles, enemy_projectiles):
         self.time += 1
-        
-        if get_distance(player, enemy) == 1:
-            return heavy_combo(player, enemy)
-        
-        if not primary_on_cooldown(player):
-            if get_distance(player, enemy) <= 5:
-                return PRIMARY
-            return FORWARD
-        
-        if not secondary_on_cooldown(player):
-            if get_distance(player, enemy) <= 7:
-                return SECONDARY
-            return FORWARD
-        
-        return BACK
-
-        
+        opp = get_primary_skill(enemy)
+        if opp == "dash_attack":
+            return vsDashAttack(self.time, player, enemy, enemy_projectiles)

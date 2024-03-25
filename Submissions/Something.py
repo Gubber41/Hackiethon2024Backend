@@ -41,29 +41,52 @@ class Script:
     def __init__(self):
         self.primary = PRIMARY_SKILL
         self.secondary = SECONDARY_SKILL
+        self.time = 0
         
     # DO NOT TOUCH
     def init_player_skills(self):
         return self.primary, self.secondary
     
-    time = 0
+    
     # MAIN FUNCTION that returns a single move to the game manager
     def get_move(self, player, enemy, player_projectiles, enemy_projectiles):
         self.time += 1
         
+        if get_secondary_skill(enemy) == "hadoken":
+            try:
+                if abs(get_proj_pos(enemy_projectiles[0])[0] - get_pos(player)[0]) <= 2:
+                    if not primary_on_cooldown:
+                        return PRIMARY
+                    return JUMP_FORWARD
+            except IndexError:
+                pass
+
+        if get_pos(player)[0] == 15:
+            return JUMP_FORWARD
+        
+        if get_pos(player)[0] == 0:
+            return JUMP_FORWARD
+        
         if get_distance(player, enemy) == 1:
-            return heavy_combo(player, enemy)
+            if get_stun_duration(enemy) > 0:
+                return heavy_combo(player, enemy)
+            if self.time % 15 == 0:
+                return BACK
+            return BLOCK
+
+        if not secondary_on_cooldown(player):
+            if get_distance(player, enemy) < 3:
+                return BACK
+            return SECONDARY
+        
         
         if not primary_on_cooldown(player):
-            if get_distance(player, enemy) <= 5:
+            if get_distance(player, enemy) < 6:
                 return PRIMARY
             return FORWARD
         
-        if not secondary_on_cooldown(player):
-            if get_distance(player, enemy) <= 7:
-                return SECONDARY
-            return FORWARD
         
-        return BACK
+        
+        return JUMP_BACKWARD
 
         
